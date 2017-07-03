@@ -1,0 +1,9 @@
+/var/log/go-apt-cacher.log {
+	weekly
+	rotate 6
+	create 0660 go-apt-cacher go-apt-cacher
+	missingok
+	notifempty
+	compress
+	nocreate
+}

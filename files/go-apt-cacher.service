@@ -1,0 +1,12 @@
+[Unit]
+Description=go-apt-cacher debian package download proxy
+After=local-fs.target syslog.target network.target
+
+[Service]
+LimitNOFILE=49152
+ExecStart=/usr/sbin/go-apt-cacher -f /etc/go-apt-cacher.toml -logfile /var/log/go-apt-cacher.log -loglevel info
+User=go-apt-cacher
+Group=go-apt-cacher
+
+[Install]
+WantedBy=multi-user.target

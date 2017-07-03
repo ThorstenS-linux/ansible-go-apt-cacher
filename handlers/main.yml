@@ -1,0 +1,10 @@
+---
+
+# https://lookonmyworks.co.uk/2015/06/24/ansible-systemctl-daemon-reload/
+- name: systemd reload daemon
+  command: systemctl daemon-reload
+
+- name: systemd start go-apt-cacher
+  service:
+    name: go-apt-cacher
+    state: restarted

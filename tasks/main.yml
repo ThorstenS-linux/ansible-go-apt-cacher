@@ -1,0 +1,83 @@
+---
+
+- name: create go-apt-cacher group
+  group:
+    name: go-apt-cacher
+    system: yes
+    state: present
+
+- name: create go-apt-cacher user
+  user:
+    name: go-apt-cacher
+    group: go-apt-cacher
+    state: present
+    system: yes
+    createhome: no
+
+- name: touch logfile
+  copy:
+    dest: /var/log/go-apt-cacher.log
+    force: no
+    content: ""
+    mode: 0660
+    owner: go-apt-cacher
+    group: go-apt-cacher
+
+- name: create directories cache and meta
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: 0775
+    owner: go-apt-cacher
+    group: go-apt-cacher
+  with_items:
+    - /var/spool/go-apt-cacher/cache
+    - /var/spool/go-apt-cacher/meta
+
+- name: copy config go-apt-cacher.toml
+  copy:
+    src: files/go-apt-cacher.toml
+    dest: /etc/go-apt-cacher.toml
+    owner: go-apt-cacher
+    group: go-apt-cacher
+    mode: 0750
+    backup: no
+  notify:
+    - systemd start go-apt-cacher
+
+- name: copy logrotate file for go-apt-cacher
+  copy:
+    src: files/go-apt-cacher.logrotate
+    dest: /etc/logrotate.d/go-apt-cacher
+    owner: root
+    group: root
+    mode: 0644
+    backup: no
+
+- name: copy binary go-apt-cacher
+  copy:
+    src: go-apt-cacher
+    dest: /usr/sbin/go-apt-cacher
+    owner: go-apt-cacher
+    group: go-apt-cacher
+    mode: 0770
+    backup: no
+  notify:
+    - systemd restart go-apt-cacher
+
+- name: copy systemd.service go-apt-cacher.service
+  copy:
+    src: files/go-apt-cacher.service
+    dest: /etc/systemd/system/go-apt-cacher.service
+    mode: 0644
+    backup: no
+  notify:
+    - systemd reload daemon
+    - systemd start go-apt-cacher
+
+- name: enable systemd.service go-apt-cacher.service
+  service:
+    name: go-apt-cacher
+    enabled: yes
+  notify:
+    - systemd start go-apt-cacher
